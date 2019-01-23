@@ -1,60 +1,46 @@
-var mongoose = require("mongoose");
+//Library module
+var express = require("express");
+var bodyParser = require("body-parser");
 
-mongoose.Promise=global.Promise;
-mongoose.connect("mongodb://localhost:27017/TodoApp");
+//it takes the string body and convert it into json format
 
-var Todo = mongoose.model("Todo",{
-     text:{
-        type:String,
-        required:true,
-        minlength:1,
-        trim:true
-    },
-    completed:{
-        type:Boolean,
-    default:false
-    },
-    completedAt:
-    {
-        type:Number
-    }
+
+//Local module
+const {mongoose} = require("./db/mongoose")
+const {Todo} = require("./models/Todo");
+const {User} = require("./models/User");
+
+//server.js file is only responsible for routes
+
+
+var app = express();
+
+//middleware
+app.use(bodyParser.json())
+
+//For creating a new todo
+app.post("/todos",(req,res)=>{
+
+    var new_Todo = new Todo({
+        text:req.body.text
+    })
+
+
+
+    new_Todo.save().then((doc)=>{
+        res.send(JSON.stringify(doc,undefined,2));
+    },(e)=>{
+        res.status(400).send(e);
+    })
+
+    //when we have to create a todo we send the request to the server
+    //server take the request then  make the model and send the complete model back to client
 })
 
 
-var User = mongoose.model("User",{
-    email:{
-        type:String,
-        require:true,
-        minlength:6,
-        trim:true
-    }
-})
 
 
 
-var new_user = new User({
-    email:"gauravkhuran154@gmail.com"
+app.listen(3000,()=>{
+    console.log("started on port 3000")
 });
-
-new_user.save();
-
-var newTodo = new Todo({
-    text:"Morning Walk        "
-})
-
-
-newTodo.save().then((res)=>{
-console.log(res)
-},(err)=>{
-    console.log(err)
-});
-
-// var otherTodo= new Todo({
-//     text:"Cook dinner",
-//     completed:"false",
-//     completedAt:new Date().getTime()
-// })
-
-
-// otherTodo.save();
-
